@@ -11,11 +11,13 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import AFFIRMATION_GALLERY from "@/constants/affirmation-gallery";
 import { GalleryPreviewData } from "@/constants/models/AffirmationCategory";
 import AppGradient from "@/components/AppGradient";
+import CustomButton from "@/components/CustomButton";
 
 const AffirmationPractice = () => {
 	const { itemId } = useLocalSearchParams();
 	const [affirmation, setAffirmation] = useState<GalleryPreviewData>();
 	const [sentences, setSentences] = useState<string[]>([]);
+	const [language, setLanguage] = useState<string>("en");
 
 	useEffect(() => {
 		for (let idx = 0; idx < AFFIRMATION_GALLERY.length; idx++) {
@@ -26,7 +28,11 @@ const AffirmationPractice = () => {
 
 			if (affirmationToStart) {
 				setAffirmation(affirmationToStart);
-				const affirmationArray = affirmationToStart.text.split(".");
+				const affirmationArray =
+					language === "en"
+						? affirmationToStart.text.split(".")
+						: affirmationToStart.text_pl.split(".");
+
 				if (affirmationArray[affirmationArray.length - 1] === "") {
 					affirmationArray.pop();
 				}
@@ -34,7 +40,7 @@ const AffirmationPractice = () => {
 				return;
 			}
 		}
-	}, []);
+	}, [itemId, language]);
 
 	return (
 		<View className="flex-1">
@@ -50,8 +56,9 @@ const AffirmationPractice = () => {
 					>
 						<AntDesign name="leftcircleo" size={50} color="white" />
 					</Pressable>
+
 					<ScrollView className="mt-20" showsVerticalScrollIndicator={false}>
-						<View className="h-full justify-center">
+						<View className="h-full justify-center mt-10">
 							<View className="h-4/5 justify-center">
 								{sentences?.map((sentence, idx) => (
 									<Text
@@ -64,6 +71,14 @@ const AffirmationPractice = () => {
 							</View>
 						</View>
 					</ScrollView>
+
+					<View className="mv-5">
+						<CustomButton
+							title={language === "en" ? "PL" : "EN"}
+							onPress={() => setLanguage(language === "en" ? "pl" : "en")}
+							containerStyle="mt-4 opacity-80"
+						/>
+					</View>
 				</AppGradient>
 			</ImageBackground>
 		</View>

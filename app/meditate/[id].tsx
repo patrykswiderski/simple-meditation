@@ -62,6 +62,13 @@ const Meditate = () => {
 			setIsMeditating(false);
 			setIsAudioPaused(false);
 			setSecondsRemaining(duration);
+
+			if (audioFile) {
+				audioFile.stopAsync();
+				audioFile.unloadAsync();
+				setAudioFile(undefined);
+			}
+
 			return;
 		}
 
@@ -137,7 +144,7 @@ const Meditate = () => {
 					</Pressable>
 					<View className="flex-1 justify-center">
 						<View className="mx-auto bg-neutral-200/80 rounded-full w-44 h-44 justify-center items-center">
-							<Text className="text-4xl text-blue-800 font-rmono">
+							<Text className="text-4xl text-green-800 font-rmono">
 								{formattedTimeMinutes}:{formattedTimeSeconds}
 							</Text>
 						</View>
@@ -147,13 +154,13 @@ const Meditate = () => {
 							title={!isAudioPaused ? "Start" : "Pause"}
 							onPress={updateMeditationStatus}
 							containerStyle={
-								!isAudioPaused ? "bg-green-500/90" : "bg-red-500/90"
+								!isAudioPaused ? "bg-green-400/80" : "bg-red-100/80"
 							}
 						/>
 						<CustomButton
 							title="Adjust duration"
 							onPress={handleAdjustDuration}
-							containerStyle="mt-4 opacity-90"
+							containerStyle="mt-4 opacity-80"
 						/>
 					</View>
 				</AppGradient>

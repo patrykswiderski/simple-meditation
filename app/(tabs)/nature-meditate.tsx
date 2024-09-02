@@ -1,11 +1,11 @@
 import { View, Text, FlatList, Pressable, ImageBackground } from "react-native";
 import React from "react";
+import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { LinearGradient } from "expo-linear-gradient";
 import AppGradient from "@/components/AppGradient";
 import { MEDITATION_DATA } from "@/constants/meditation-data";
 import MEDITATION_IMAGES from "@/constants/meditation-images";
-import { router } from "expo-router";
 
 const NatureMeditate = () => {
 	return (
