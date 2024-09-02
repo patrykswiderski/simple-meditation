@@ -13,11 +13,11 @@ const Affirmations = () => {
 						Change your beliefs affirmations
 					</Text>
 					<View>
-						{AFFIRMATION_GALLERY.map((g) => (
+						{AFFIRMATION_GALLERY.map((gallery) => (
 							<GuidedAffirmationsGallery
-								key={g.title}
-								title={g.title}
-								previews={g.data}
+								key={gallery.title}
+								title={gallery.title}
+								previews={gallery.data}
 							/>
 						))}
 					</View>

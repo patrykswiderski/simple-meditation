@@ -1,11 +1,4 @@
-import {
-	View,
-	Text,
-	FlatList,
-	Pressable,
-	ImageBackground,
-	Image,
-} from "react-native";
+import { View, Text, FlatList, Pressable, Image } from "react-native";
 import React from "react";
 import { GalleryPreviewData } from "@/constants/models/AffirmationCategory";
 import { Link } from "expo-router";
@@ -31,15 +24,12 @@ const GuidedAffirmationsGallery = ({
 					keyExtractor={(item) => item.id.toString()}
 					renderItem={({ item }) => (
 						<Link href={`/affirmations/${item.id}`} asChild>
-							<Pressable
-								onPress={() => console.log("press")}
-								className="h-48 my-3 rounded-md overflow-hidden"
-							>
-								<View className="h-36 w-32 rounded-md mr-4">
+							<Pressable className="min-h-min my-0 rounded-md overflow-hidden">
+								<View className="h-32 w-32 mr-4">
 									<Image
 										source={item.image}
 										resizeMode="cover"
-										className="w-full h-full"
+										className="w-full h-full rounded-md"
 									/>
 								</View>
 							</Pressable>

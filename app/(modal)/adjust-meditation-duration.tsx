@@ -82,7 +82,7 @@ const AdjustMeditationDuration = () => {
 				}}
 			>
 				<View className="flex-1 justify-center items-center">
-					<View className="bg-white rounded-lg p-8 border border-neutral-300 shadow-xl shadow-neutral-800">
+					<View className="bg-white rounded-lg p-8 border border-neutral-300 shadow-2xl shadow-neutral-900 w-4/5">
 						<Text className="text-center font-bold text-2xl mb-4">
 							Enter custom duration
 						</Text>
@@ -90,8 +90,8 @@ const AdjustMeditationDuration = () => {
 							value={customDuration}
 							onChangeText={setCustomDuration}
 							keyboardType="numeric"
-							placeholder="Enter minutes"
-							className="border text-center border-gray-300 rounded-lg p-2 text-lg mb-4"
+							placeholder="Enter minutes..."
+							className="border text-center border-gray-300 rounded-xl p-2 text-lg mb-4 h-16"
 						/>
 						<CustomButton
 							title="Set Duration"
