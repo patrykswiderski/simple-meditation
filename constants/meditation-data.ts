@@ -42,6 +42,12 @@ export const MEDITATION_DATA: MeditationType[] = [
 		image: "waterfall.webp",
 		audio: "waterfall.mp3",
 	},
+	{
+		id: 7,
+		title: "Custom Meditation",
+		image: "custom.webp",
+		audio: "",
+	},
 ];
 
 export const AUDIO_FILES: { [key: string]: any } = {

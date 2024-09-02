@@ -1,8 +1,9 @@
-import { View, Text, ImageBackground, Pressable } from "react-native";
+import { View, Text, ImageBackground, Pressable, Alert } from "react-native";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { Audio } from "expo-av";
+import * as DocumentPicker from "expo-document-picker";
 import { TimerContext } from "@/context/TimerContext";
 import { MEDITATION_DATA, AUDIO_FILES } from "@/constants/meditation-data";
 import MEDITATION_IMAGES from "@/constants/meditation-images";
@@ -16,12 +17,38 @@ const Meditate = () => {
 	const [isMeditating, setIsMeditating] = useState<boolean>(false);
 	const [audioFile, setAudioFile] = useState<Audio.Sound | null>(null);
 	const [isAudioPaused, setIsAudioPaused] = useState<boolean>(false);
+	const [customAudioUri, setCustomAudioUri] = useState<string | null>(null);
 
+	const pickCustomAudio = async () => {
+		try {
+			const result = await DocumentPicker.getDocumentAsync({
+				type: "audio/*",
+			});
+			if (result.assets && result.assets.length > 0) {
+				setCustomAudioUri(result.assets[0].uri);
+			} else {
+				Alert.alert("Selection cancelled");
+			}
+		} catch (error) {
+			console.error("Error picking audio file", error);
+		}
+	};
 	const initializeSound = useCallback(async () => {
 		try {
-			const audioTrack = MEDITATION_DATA[Number(id) - 1].audio;
-			const { sound } = await Audio.Sound.createAsync(AUDIO_FILES[audioTrack]);
-			await sound.setRateAsync(7.0, true);
+			let sound;
+			if (Number(id) === 7 && customAudioUri) {
+				const { sound: loadedSound } = await Audio.Sound.createAsync({
+					uri: customAudioUri,
+				});
+				sound = loadedSound;
+			} else {
+				const audioTrack = MEDITATION_DATA[Number(id) - 1].audio;
+				const audioSource = AUDIO_FILES[audioTrack];
+				const { sound: loadedSound } = await Audio.Sound.createAsync(
+					audioSource
+				);
+				sound = loadedSound;
+			}
 
 			setAudioFile(sound);
 			await sound.setIsLoopingAsync(true);
@@ -29,8 +56,7 @@ const Meditate = () => {
 		} catch (error) {
 			console.error("Error loading sound", error);
 		}
-	}, [id]);
-
+	}, [id, customAudioUri]);
 	useEffect(() => {
 		if (!isMeditating) {
 			setSecondsRemaining(duration);
@@ -97,6 +123,10 @@ const Meditate = () => {
 		router.push("/(modal)/adjust-meditation-duration");
 	};
 
+	const handleCustomMeditation = async () => {
+		await pickCustomAudio();
+	};
+
 	const formattedTimeMinutes = String(
 		Math.floor(secondsRemaining / 60)
 	).padStart(2, "0");
@@ -137,6 +167,13 @@ const Meditate = () => {
 							onPress={handleAdjustDuration}
 							containerStyle="mt-4 opacity-80"
 						/>
+						{Number(id) === 7 && (
+							<CustomButton
+								title="Select audio file"
+								onPress={handleCustomMeditation}
+								containerStyle="mt-4 opacity-80"
+							/>
+						)}
 					</View>
 				</AppGradient>
 			</ImageBackground>
