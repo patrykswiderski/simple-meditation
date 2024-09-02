@@ -12,63 +12,45 @@ import CustomButton from "@/components/CustomButton";
 const Meditate = () => {
 	const { id } = useLocalSearchParams();
 	const { duration, setDuration } = useContext(TimerContext);
-	const [secondsRemaining, setSecondsRemaining] = useState(duration);
-	const [isMeditating, setIsMeditating] = useState(false);
-	const [audioFile, setAudioFile] = useState<Audio.Sound>();
-	const [isAudioPaused, setIsAudioPaused] = useState(false);
-	const [currentTrackIndex, setCurrentTrackIndex] = useState<number>(0);
+	const [secondsRemaining, setSecondsRemaining] = useState<number>(duration);
+	const [isMeditating, setIsMeditating] = useState<boolean>(false);
+	const [audioFile, setAudioFile] = useState<Audio.Sound | null>(null);
+	const [isAudioPaused, setIsAudioPaused] = useState<boolean>(false);
 
-	useEffect(() => {
-		const randomIndex = Math.floor(Math.random() * MEDITATION_DATA.length);
-		setCurrentTrackIndex(randomIndex);
-	}, []);
-
-	const initializeSound = useCallback(
-		async (trackIndex: number) => {
-			const audioTrack = MEDITATION_DATA[trackIndex].audio;
+	const initializeSound = useCallback(async () => {
+		try {
+			const audioTrack = MEDITATION_DATA[Number(id) - 1].audio;
 			const { sound } = await Audio.Sound.createAsync(AUDIO_FILES[audioTrack]);
+			await sound.setRateAsync(7.0, true);
 
 			setAudioFile(sound);
-
-			sound.setOnPlaybackStatusUpdate(async (status) => {
-				if (status.isLoaded && status.didJustFinish) {
-					let nextTrackIndex = trackIndex + 1;
-					if (nextTrackIndex >= MEDITATION_DATA.length) {
-						nextTrackIndex = 0;
-					}
-
-					setCurrentTrackIndex(nextTrackIndex);
-
-					const newSound = await initializeSound(nextTrackIndex);
-					await newSound.playAsync();
-				}
-			});
-
+			await sound.setIsLoopingAsync(true);
 			return sound;
-		},
-		[currentTrackIndex]
-	);
+		} catch (error) {
+			console.error("Error loading sound", error);
+		}
+	}, [id]);
 
 	useEffect(() => {
 		if (!isMeditating) {
 			setSecondsRemaining(duration);
 		}
-	}, [duration]);
+	}, [duration, isMeditating]);
 
 	useEffect(() => {
 		let timerId: NodeJS.Timeout;
 
 		if (secondsRemaining === 0) {
+			const pauseAudio = async () => {
+				if (audioFile) {
+					await audioFile.pauseAsync();
+					setIsAudioPaused(false);
+				}
+			};
+
+			pauseAudio();
 			setIsMeditating(false);
-			setIsAudioPaused(false);
 			setSecondsRemaining(duration);
-
-			if (audioFile) {
-				audioFile.stopAsync();
-				audioFile.unloadAsync();
-				setAudioFile(undefined);
-			}
-
 			return;
 		}
 
@@ -81,7 +63,7 @@ const Meditate = () => {
 		return () => {
 			clearTimeout(timerId);
 		};
-	}, [secondsRemaining, isMeditating, duration]);
+	}, [secondsRemaining, isMeditating, duration, audioFile]);
 
 	useEffect(() => {
 		return () => {
@@ -91,29 +73,22 @@ const Meditate = () => {
 	}, [audioFile]);
 
 	const pausePlayAudio = useCallback(async () => {
-		const sound = audioFile
-			? audioFile
-			: await initializeSound(currentTrackIndex);
+		const sound = audioFile ? audioFile : await initializeSound();
 		const status = await sound?.getStatusAsync();
 
 		if (status?.isLoaded && !isAudioPaused) {
 			await sound?.playAsync();
-			await sound?.setIsLoopingAsync(false);
 			setIsAudioPaused(true);
 		} else {
 			await sound?.pauseAsync();
 			setIsAudioPaused(false);
 		}
-	}, [audioFile, isAudioPaused, initializeSound, currentTrackIndex]);
+	}, [audioFile, isAudioPaused, initializeSound]);
 
 	const updateMeditationStatus = useCallback(async () => {
-		if (secondsRemaining === 0) {
-			setSecondsRemaining(duration);
-		}
 		setIsMeditating(!isMeditating);
-
 		await pausePlayAudio();
-	}, [secondsRemaining, duration, pausePlayAudio]);
+	}, [isMeditating, pausePlayAudio]);
 
 	const handleAdjustDuration = async () => {
 		if (isMeditating) {
@@ -168,5 +143,4 @@ const Meditate = () => {
 		</View>
 	);
 };
-
 export default Meditate;
